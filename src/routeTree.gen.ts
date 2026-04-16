@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UniversidadesRouteImport } from './routes/universidades'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as CarrerasRouteImport } from './routes/carreras'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UniversidadesUniIdRouteImport } from './routes/universidades.$uniId'
 
@@ -30,6 +31,11 @@ const CarrerasRoute = CarrerasRouteImport.update({
   path: '/carreras',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +49,7 @@ const UniversidadesUniIdRoute = UniversidadesUniIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/carreras': typeof CarrerasRoute
   '/comparar': typeof CompararRoute
   '/universidades': typeof UniversidadesRouteWithChildren
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/carreras': typeof CarrerasRoute
   '/comparar': typeof CompararRoute
   '/universidades': typeof UniversidadesRouteWithChildren
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/carreras': typeof CarrerasRoute
   '/comparar': typeof CompararRoute
   '/universidades': typeof UniversidadesRouteWithChildren
@@ -67,6 +76,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/carreras'
     | '/comparar'
     | '/universidades'
@@ -74,6 +84,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/carreras'
     | '/comparar'
     | '/universidades'
@@ -81,6 +92,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/carreras'
     | '/comparar'
     | '/universidades'
@@ -89,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CarrerasRoute: typeof CarrerasRoute
   CompararRoute: typeof CompararRoute
   UniversidadesRoute: typeof UniversidadesRouteWithChildren
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/carreras'
       fullPath: '/carreras'
       preLoaderRoute: typeof CarrerasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -148,6 +168,7 @@ const UniversidadesRouteWithChildren = UniversidadesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CarrerasRoute: CarrerasRoute,
   CompararRoute: CompararRoute,
   UniversidadesRoute: UniversidadesRouteWithChildren,
@@ -155,3 +176,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
