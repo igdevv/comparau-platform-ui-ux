@@ -9,38 +9,114 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UniversidadesRouteImport } from './routes/universidades'
+import { Route as CompararRouteImport } from './routes/comparar'
+import { Route as CarrerasRouteImport } from './routes/carreras'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UniversidadesUniIdRouteImport } from './routes/universidades.$uniId'
 
+const UniversidadesRoute = UniversidadesRouteImport.update({
+  id: '/universidades',
+  path: '/universidades',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompararRoute = CompararRouteImport.update({
+  id: '/comparar',
+  path: '/comparar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarrerasRoute = CarrerasRouteImport.update({
+  id: '/carreras',
+  path: '/carreras',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UniversidadesUniIdRoute = UniversidadesUniIdRouteImport.update({
+  id: '/$uniId',
+  path: '/$uniId',
+  getParentRoute: () => UniversidadesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/carreras': typeof CarrerasRoute
+  '/comparar': typeof CompararRoute
+  '/universidades': typeof UniversidadesRouteWithChildren
+  '/universidades/$uniId': typeof UniversidadesUniIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/carreras': typeof CarrerasRoute
+  '/comparar': typeof CompararRoute
+  '/universidades': typeof UniversidadesRouteWithChildren
+  '/universidades/$uniId': typeof UniversidadesUniIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/carreras': typeof CarrerasRoute
+  '/comparar': typeof CompararRoute
+  '/universidades': typeof UniversidadesRouteWithChildren
+  '/universidades/$uniId': typeof UniversidadesUniIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/carreras'
+    | '/comparar'
+    | '/universidades'
+    | '/universidades/$uniId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/carreras'
+    | '/comparar'
+    | '/universidades'
+    | '/universidades/$uniId'
+  id:
+    | '__root__'
+    | '/'
+    | '/carreras'
+    | '/comparar'
+    | '/universidades'
+    | '/universidades/$uniId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CarrerasRoute: typeof CarrerasRoute
+  CompararRoute: typeof CompararRoute
+  UniversidadesRoute: typeof UniversidadesRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/universidades': {
+      id: '/universidades'
+      path: '/universidades'
+      fullPath: '/universidades'
+      preLoaderRoute: typeof UniversidadesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comparar': {
+      id: '/comparar'
+      path: '/comparar'
+      fullPath: '/comparar'
+      preLoaderRoute: typeof CompararRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carreras': {
+      id: '/carreras'
+      path: '/carreras'
+      fullPath: '/carreras'
+      preLoaderRoute: typeof CarrerasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +124,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/universidades/$uniId': {
+      id: '/universidades/$uniId'
+      path: '/$uniId'
+      fullPath: '/universidades/$uniId'
+      preLoaderRoute: typeof UniversidadesUniIdRouteImport
+      parentRoute: typeof UniversidadesRoute
+    }
   }
 }
 
+interface UniversidadesRouteChildren {
+  UniversidadesUniIdRoute: typeof UniversidadesUniIdRoute
+}
+
+const UniversidadesRouteChildren: UniversidadesRouteChildren = {
+  UniversidadesUniIdRoute: UniversidadesUniIdRoute,
+}
+
+const UniversidadesRouteWithChildren = UniversidadesRoute._addFileChildren(
+  UniversidadesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CarrerasRoute: CarrerasRoute,
+  CompararRoute: CompararRoute,
+  UniversidadesRoute: UniversidadesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
